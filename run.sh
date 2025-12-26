@@ -1,1 +1,1 @@
-qemu-system-i386 -boot c -m 256 -hda build/floppy.img 
+qemu-system-i386 -fda build/floppy.img

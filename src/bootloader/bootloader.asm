@@ -41,14 +41,120 @@ start:
     mov si,message
     call puts
 
-    mov ax,1                ; LBS value (lbs indicates the sector number)
-    mov bx,0x7e00
+    ;4 segments
+    ;reserved segment: 1 sector
+    ;FAT:  number_of_fat * segments_of_each_fat
+    ;Root: number_of_dir * 32
+    ;Data
+
+    mov ax, [bpbSectorPerFat]
+    mov bl, [bpbNumberofFATs]
+    xor bh,bh
+    mul bx
+    ADD ax,[bpbReservedSectors] ; LBA of the root directory
+    push ax
+
+    mov ax,[bpbRootEntries]
+    shl ax,5 ; mul ax,32
+    xor dx,dx 
+    div word [bpbBytesPerSector] ; ax contains the number of sectors in root
+
+    test dx,dx
+    jz rootDirAfter
+    inc ax
+
+rootDirAfter:
+    mov cl,al
+    pop ax
+    mov dl,[bsDriveNumber]
+    mov bx,buffer
     call read_from_disk
 
-    mov si,0x7E00
-    mov al,[si]
-    mov ah,0x0E
-    int 0x10
+    xor bx,bx
+    mov di,buffer
+
+searchKernel:
+    mov si,file_kernal_bin
+    mov cx,11
+    push di
+    repe cmpsb  ; assembly string function
+    pop di
+    je foundKernel
+
+    add di,32
+    inc bx
+    cmp bx,[bpbRootEntries]
+    jl searchKernel
+
+    jmp kernelNotFound
+
+kernelNotFound:
+    mov si,msg_kernel_not_found
+    call puts
+
+    hlt 
+    jmp halt
+
+foundKernel:
+    mov ax,[di+26]
+    mov [kernel_cluster],ax
+
+    mov ax,[bpbReservedSectors]
+    mov bx,buffer
+    mov cl,[bpbSectorPerFat]
+    mov dl,[bsDriveNumber]
+
+    call read_from_disk
+
+    mov bx,kernel_load_segment
+    mov es,bx
+    mov bx,kernel_load_offset
+
+loadKernelLoop:
+    mov ax,[kernel_cluster]
+    add ax,31
+    mov cl,1
+    mov dl,[bsDriveNumber]
+
+    call read_from_disk
+
+    add bx,[bpbBytesPerSector]
+
+    mov ax,[kernel_cluster] ;(kernel vluster *3)/2
+    mov cx,3
+    mul cx
+    mov cx,2
+    div cx
+
+    mov si,buffer
+    mov si,ax
+    mov ax,[ds:si]
+
+    or dx,dx
+    jz even
+
+odd:
+    shr ax,4
+    jmp nextClusterAfter
+even:
+    add ax,0x0fff
+
+nextClusterAfter:
+    cmp ax,0x0ff8
+    jae readFinish
+
+    MOV [kernel_cluster],ax
+    jmp loadKernelLoop
+
+readFinish:
+    mov dl,[bsDriveNumber]
+    mov ax,kernel_load_segment
+    mov ds,ax
+    mov es,ax
+
+    jmp kernel_load_segment:kernel_load_offset
+    
+    hlt
 
 halt:
     jmp halt 
@@ -153,9 +259,18 @@ puts_end:
 message db "Operating system from scratch",0dh,0ah,0
 read_error_msg db "Error while reading the disk",0dh,0ah,0
 read_success_message db "Read successfull",0dh,0ah,0
+file_kernal_bin db "KERNEL  BIN"
+msg_kernel_not_found db "KERNEL.BIN not found"
+kernel_cluster dw 0
+
+kernel_load_segment equ 0x2000
+kernel_load_offset equ 0
 
 ;; padding 
 times 510 - ($ - $$) db 0
 ;; End marker for the bootloader so that the bios will identify wheather it is an bootloader or not
 dw 0xAA55
+
+buffer:
+
     
