@@ -38,8 +38,6 @@ start:
     mov ss,ax
     mov sp,0x7c00
     
-    mov si,message
-    call puts
 
     ;4 segments
     ;reserved segment: 1 sector
@@ -64,7 +62,7 @@ start:
     inc ax
 
 rootDirAfter:
-    mov cl,al
+    mov cl,al                   
     pop ax
     mov dl,[bsDriveNumber]
     mov bx,buffer
@@ -72,8 +70,9 @@ rootDirAfter:
 
     xor bx,bx
     mov di,buffer
-
+    
 searchKernel:
+
     mov si,file_kernal_bin
     mov cx,11
     push di
@@ -96,9 +95,13 @@ kernelNotFound:
     jmp halt
 
 foundKernel:
+
+    ; getting the first cluster of the kernel from the root directory
     mov ax,[di+26]
     mov [kernel_cluster],ax
 
+loading_FAT:
+    ; loading the file allocation table in the buffer
     mov ax,[bpbReservedSectors]
     mov bx,buffer
     mov cl,[bpbSectorPerFat]
@@ -106,28 +109,32 @@ foundKernel:
 
     call read_from_disk
 
+    ; setting memory address for the kernel to load
     mov bx,kernel_load_segment
     mov es,bx
     mov bx,kernel_load_offset
 
 loadKernelLoop:
-    mov ax,[kernel_cluster]
-    add ax,31
+    ; reading the sectors from the disk one by one
+
+    mov ax,[kernel_cluster] ; loading the current cluster number
+    add ax,31               ; adding 31 instead of 33 because FAT cluster starts with 2. this is to get the sector number
     mov cl,1
     mov dl,[bsDriveNumber]
 
-    call read_from_disk
+    call read_from_disk   
 
-    add bx,[bpbBytesPerSector]
+    add bx,[bpbBytesPerSector]  ; moving next 512 bytes of address
 
-    mov ax,[kernel_cluster] ;(kernel vluster *3)/2
+    mov ax,[kernel_cluster] ; kernel cluster*(3/2) or 1.5 
     mov cx,3
     mul cx
     mov cx,2
     div cx
 
+    ; reading the next cluster number of the kernel
     mov si,buffer
-    mov si,ax
+    add si,ax
     mov ax,[ds:si]
 
     or dx,dx
@@ -136,10 +143,13 @@ loadKernelLoop:
 odd:
     shr ax,4
     jmp nextClusterAfter
+
 even:
-    add ax,0x0fff
+    and ax,0x0fff
+    jmp nextClusterAfter
 
 nextClusterAfter:
+    
     cmp ax,0x0ff8
     jae readFinish
 
@@ -197,8 +207,9 @@ read_from_disk:
 
     call lba_to_chs
     mov di,3
-
+    
 retry:
+    mov ah,0x02
     stc
     int 13h
     jnc success
@@ -225,9 +236,6 @@ diskRest:
 success:
     popa
 
-    mov si,read_success_message
-    call puts
-
     clc
     ret
 
@@ -239,28 +247,30 @@ read_Error:
 
 ;; print function
 puts:
+    pusha
+    puts_loop:
 
-    mov al,BYTE [si]
-    cmp al,0
-    je puts_end
+        mov al,BYTE [si]
+        cmp al,0
+        je puts_end
 
-    mov ah,0x0e
-    int 0x10
+        mov ah,0x0e
+        int 0x10
 
-    inc si
+        inc si
 
-    jmp puts
+        jmp puts_loop
 
-puts_end:
-
-    ret
+    puts_end:
+        popa
+        ret
 
 ;; data section
 message db "Operating system from scratch",0dh,0ah,0
 read_error_msg db "Error while reading the disk",0dh,0ah,0
 read_success_message db "Read successfull",0dh,0ah,0
 file_kernal_bin db "KERNEL  BIN"
-msg_kernel_not_found db "KERNEL.BIN not found"
+msg_kernel_not_found db "Kernel.bin not found",0ah,0dh,0
 kernel_cluster dw 0
 
 kernel_load_segment equ 0x2000
@@ -268,6 +278,7 @@ kernel_load_offset equ 0
 
 ;; padding 
 times 510 - ($ - $$) db 0
+
 ;; End marker for the bootloader so that the bios will identify wheather it is an bootloader or not
 dw 0xAA55
 
