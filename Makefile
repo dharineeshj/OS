@@ -1,11 +1,16 @@
 
 BOOT_SRC=src/bootloader/bootloader.asm
-KER_SRC=src/kernel/kernel.asm
+KER_SRC=src/kernel/main.asm
 
 BOOT_BIN=build/bootloader.bin
 KER_BIN=build/kernel.bin
 FLOPPY_IMG=build/floppy.img
 
+CC16=/usr/bin/watcom/binl/wcc
+CFLAGS16=-s -ms -zl -zq
+LD16=/usr/bin/watcom/binl/wlink 
+
+all: always floppy boot.bin ker.bin 
 
 floppy: boot.bin ker.bin $(FLOPPY_IMG)
 	# cat $(BOOT_BIN) $(KER_BIN) > $(FLOPPY_IMG)
@@ -19,4 +24,23 @@ boot.bin: $(BOOT_SRC)
 	nasm -f bin $< -o $(BOOT_BIN)
 
 ker.bin: $(KER_SRC)
-	nasm -f bin $< -o $(KER_BIN)
+	nasm -f obj -o build/kernel/asm/main.obj src/kernel/main.asm
+	nasm -f obj -o build/kernel/asm/print.obj src/kernel/print.asm
+	nasm -f obj -o build/kernel/asm/get.obj src/kernel/get.asm
+	$(CC16) $(CFLAGS16) -fo=build/kernel/c/main.obj src/kernel/main.c
+	$(CC16) $(CFLAGS16) -fo=build/kernel/c/stdio.obj src/kernel/stdio.c
+	$(LD16) \
+		FILE build/kernel/asm/main.obj \
+		FILE build/kernel/asm/print.obj \
+		FILE build/kernel/asm/get.obj \
+		FILE build/kernel/c/main.obj \
+		FILE build/kernel/c/stdio.obj \
+		NAME build/kernel.bin \
+		OPTION MAP=build/kernel.map \
+		@src/kernel/linker.lnk
+
+always:
+	mkdir -p build
+	mkdir -p build/kernel
+	mkdir -p build/kernel/asm
+	mkdir -p build/kernel/c
