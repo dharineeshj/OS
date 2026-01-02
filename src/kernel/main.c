@@ -6,6 +6,6 @@
 char c;
 char s[100];
 void _cdecl cstart(){
-    ttt();
+    puts("DJ>");
 }
 
