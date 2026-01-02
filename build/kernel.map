@@ -1,7 +1,7 @@
 Open Watcom Linker Version 2.0 beta Dec 31 2025 02:41:59 (32-bit)
 Copyright (c) 2002-2025 The Open Watcom Contributors. All Rights Reserved.
 Portions Copyright (c) 1985-2002 Sybase, Inc. All Rights Reserved.
-Created on:       26/01/01 13:45:40
+Created on:       26/01/02 08:42:58
 Executable Image: build/kernel.bin
 creating a RAW Binary Image executable
 
@@ -13,7 +13,7 @@ creating a RAW Binary Image executable
 Group                           Address              Size
 =====                           =======              ====
 
-DGROUP                          0000005e             000000d1
+DGROUP                          000002a2             00000123
 
 
 
@@ -25,12 +25,12 @@ Segment                Class          Group          Address         Size
 =======                =====          =====          =======         ====
 
 _ENTRY                 CODE           AUTO           00000000        00000013
-_TEXT                  CODE           AUTO           00000013        0000004b
-CONST                  DATA           DGROUP         0000005e        00000015
-CONST2                 DATA           DGROUP         00000074        00000000
-_DATA                  DATA           DGROUP         00000074        00000000
-__NASMDEFSEG                          AUTO           00000074        00000055
-_BSS                   BSS            DGROUP         000000ca        00000065
+_TEXT                  CODE           AUTO           00000013        0000028e
+CONST                  DATA           DGROUP         000002a2        0000008b
+CONST2                 DATA           DGROUP         0000032e        00000000
+_DATA                  DATA           DGROUP         0000032e        0000000b
+__NASMDEFSEG                          AUTO           00000339        00000026
+_BSS                   BSS            DGROUP         00000360        00000065
 
 
                         +----------------+
@@ -46,19 +46,24 @@ Address        Symbol
 Module: build/kernel/asm/main.obj(src/kernel/main.asm)
 00000000       entry
 Module: build/kernel/asm/print.obj(src/kernel/print.asm)
-00000074       _x86_Video_WriteCharTeletype
+00000339       _x86_Video_WriteCharTeletype
 Module: build/kernel/asm/get.obj(src/kernel/get.asm)
-00000084       _x86_Video_ReadCharTeletype
-000000a2       _x86_Video_ReadStrTeletype
+00000349       _x86_Video_ReadCharTeletype
 Module: build/kernel/c/main.obj(/home/kali/OS/OS/src/kernel/main.c)
 00000013       _cstart
-000000ca+      _s
-0000012e*      _c
+00000360*      _s
+000003c4*      _c
 Module: build/kernel/c/stdio.obj(/home/kali/OS/OS/src/kernel/stdio.c)
-00000025+      putc_
-00000036       puts_
-00000047*      getc_
-00000055       gets_
+00000016       putc_
+00000029       puts_
+0000003a       getc_
+00000046*      gets_
+Module: build/kernel/c/tick_tack_toe.obj(/home/kali/OS/OS/src/kernel/tick_tack_toe.c)
+0000006c+      print_grid_
+000000aa+      check_
+00000187+      input_
+000001e8       ttt_
+0000032e+      _new_line
 
 
                         +---------------------+
@@ -74,20 +79,25 @@ Module          Segment               Class           Address         Size
 src/kernel/main.asm
                 _ENTRY                CODE           00000000         00000013
 src/kernel/print.asm
-                __NASMDEFSEG                         00000074         00000010
+                __NASMDEFSEG                         00000339         00000010
 src/kernel/get.asm
-                __NASMDEFSEG                         00000084         00000045
+                __NASMDEFSEG                         00000349         00000016
 /home/kali/OS/OS/src/kernel/main.c
-                _TEXT                 CODE           00000013         00000012
-                CONST                 DATA           0000005e         00000015
-                CONST2                DATA           00000074         00000000
-                _DATA                 DATA           00000074         00000000
-                _BSS                  BSS            000000ca         00000065
+                _TEXT                 CODE           00000013         00000003
+                CONST                 DATA           000002a2         00000000
+                CONST2                DATA           0000032e         00000000
+                _DATA                 DATA           0000032e         00000000
+                _BSS                  BSS            00000360         00000065
 /home/kali/OS/OS/src/kernel/stdio.c
-                _TEXT                 CODE           00000025         00000039
-                CONST                 DATA           00000074         00000000
-                CONST2                DATA           00000074         00000000
-                _DATA                 DATA           00000074         00000000
+                _TEXT                 CODE           00000016         00000056
+                CONST                 DATA           000002a2         00000000
+                CONST2                DATA           0000032e         00000000
+                _DATA                 DATA           0000032e         00000000
+/home/kali/OS/OS/src/kernel/tick_tack_toe.c
+                _TEXT                 CODE           0000006c         00000235
+                CONST                 DATA           000002a2         0000008b
+                CONST2                DATA           0000032e         00000000
+                _DATA                 DATA           0000032e         0000000b
 Warning! W1014: stack segment not found
 
 
@@ -96,6 +106,6 @@ Warning! W1014: stack segment not found
                         +-----------------------+
 
 Stack size:  0200 (512.)
-Memory size:  012f (303.)
+Memory size:  03c5 (965.)
 Entry point address: 00000000
-Link time: 00:00.00
+Link time: 00:00.10

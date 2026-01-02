@@ -27,14 +27,17 @@ ker.bin: $(KER_SRC)
 	nasm -f obj -o build/kernel/asm/main.obj src/kernel/main.asm
 	nasm -f obj -o build/kernel/asm/print.obj src/kernel/print.asm
 	nasm -f obj -o build/kernel/asm/get.obj src/kernel/get.asm
+
 	$(CC16) $(CFLAGS16) -fo=build/kernel/c/main.obj src/kernel/main.c
 	$(CC16) $(CFLAGS16) -fo=build/kernel/c/stdio.obj src/kernel/stdio.c
+	$(CC16) $(CFLAGS16) -fo=build/kernel/c/tick_tack_toe.obj src/kernel/tick_tack_toe.c
 	$(LD16) \
 		FILE build/kernel/asm/main.obj \
 		FILE build/kernel/asm/print.obj \
 		FILE build/kernel/asm/get.obj \
 		FILE build/kernel/c/main.obj \
 		FILE build/kernel/c/stdio.obj \
+		FILE build/kernel/c/tick_tack_toe.obj \
 		NAME build/kernel.bin \
 		OPTION MAP=build/kernel.map \
 		@src/kernel/linker.lnk

@@ -18,5 +18,18 @@ void getc(char *c){
 }
 
 void gets(char *s){
-    x86_Video_ReadStrTeletype(s);
+    char c;
+    char *temp=s;
+    getc(&c);
+
+    *temp=c;
+    temp++;
+
+    while(c!=0x0d){
+        getc(&c);
+        *temp=c;
+        temp++;
+    }
+
+    putc(0x0a);
 }
