@@ -5,7 +5,10 @@
 
 char c;
 char s[100];
+int a,b;
 void _cdecl cstart(){
-    puts("DJ>");
+    printf("Enter the number:");
+    scanf("%x",&a);
+    printf("%d",a);
 }
 

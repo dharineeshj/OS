@@ -1,7 +1,7 @@
 src/kernel/stdint.h(16): Warning! W138: No newline at end of file
-src/kernel/stdio.h(7): Warning! W138: No newline at end of file
+src/kernel/stdint.h(16): Warning! W138: No newline at end of file
 src/kernel/tick_tack_toe.c(70): Warning! E1181: Parameter 1, sign specifier mismatch
 src/kernel/tick_tack_toe.c(70): Note! I2003: source conversion type is 'signed char *'
 src/kernel/tick_tack_toe.c(70): Note! I2004: target conversion type is 'char *'
-src/kernel/tick_tack_toe.c(70): Note! I2002: 'getc' defined in: src/kernel/stdio.h(6)
+src/kernel/tick_tack_toe.c(70): Note! I2002: 'getc' defined in: src/kernel/stdio.h(11)
 src/kernel/tick_tack_toe.c(125): Warning! W138: No newline at end of file
