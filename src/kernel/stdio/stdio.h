@@ -4,14 +4,12 @@
 void putc(char c);
 void puts(const char* s);
 void puts_f(const char far* s);
-void _cdecl printf(const char* fmt,...);
-void _cdecl scanf(const char* fmt,...);
-int* printf_number(int *argp,int length,bool sign,int radix);
+int _cdecl printf(const char* fmt,...);
+int _cdecl scanf(const char* fmt,...);
+int* printf_number(int *argp,int length,bool sign,int radix,int *writeLen);
 int* scanf_number(int* argp,int length,bool sign,int multiplyer);
 void getc(char *c);
 void gets(char* s);
-
-
 
 #define STATE_START 0
 #define STATE_LENGTH 1

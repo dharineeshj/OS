@@ -40,19 +40,19 @@ void gets(char *s)
         *p++ = c;
     }
 
-    *p = '\0';
+
 }
 
 // The argp is int here because the size of int in openWatcom is 2 bytes
 // The fmt holds the address of the string and we are assigning the address of the string to the argp. By increamenting the argp we go the first actual value to be printed
 
-void _cdecl printf(const char* fmt,...){
+int _cdecl printf(const char* fmt,...){
     int *argp=(int*)&fmt;                   
     int state= STATE_START;
     int length= STATE_LENGTH;
     int radix = 10;
     bool sign = false;
-
+    int writeLen=0;
     argp++;
     while(*fmt){
         switch(state){
@@ -62,6 +62,7 @@ void _cdecl printf(const char* fmt,...){
                 }
                 else{
                     putc(*fmt);
+                    writeLen++;
                 }
                 break;
             case STATE_LENGTH:
@@ -121,24 +122,24 @@ void _cdecl printf(const char* fmt,...){
                         case 'i':
                             radix=10;
                             sign = true;
-                            argp = printf_number(argp,length,sign,radix);
+                            argp = printf_number(argp,length,sign,radix,&writeLen);
                             break;
                         case 'u':
                             radix=10;
                             sign=false;
-                            argp=printf_number(argp,length,sign,radix);
+                            argp=printf_number(argp,length,sign,radix,&writeLen);
                             break;
                         case 'X':
                         case 'x':
                         case 'p':
                             radix=16;
                             sign=false;
-                            argp=printf_number(argp,length,sign,radix);
+                            argp=printf_number(argp,length,sign,radix,&writeLen);
                             break;
                         case 'o':
                             radix=8;
                             sign=false;
-                            argp = printf_number(argp,length,sign,radix);
+                            argp = printf_number(argp,length,sign,radix,&writeLen);
                             break;
                         default:
                             break;
@@ -151,13 +152,15 @@ void _cdecl printf(const char* fmt,...){
         }
         fmt++;
     }
+
+    return writeLen;
 }
 
-void _cdecl scanf(const char* fmt,...){
+int _cdecl scanf(const char* fmt,...){
     int *argp=(int*)&fmt;
     int state=STATE_START;
     int length = STATE_LENGTH;
-
+    int args_count=0;
     argp++;
     while(*fmt){
         switch(state){
@@ -206,6 +209,7 @@ void _cdecl scanf(const char* fmt,...){
                             argp+=1;
                             break;
                         case 's':
+                            gets((char*)*argp);
                             break;
                         case 'd':
                         case 'i':
@@ -221,14 +225,17 @@ void _cdecl scanf(const char* fmt,...){
 
                     state=STATE_START;
                     length=STATE_LENGTH;
+                    args_count++;
                     break;
         }
         fmt++;
     }
 
+    return args_count;
+
 }
 
-int* printf_number(int *argp,int length,bool sign,int radix){
+int* printf_number(int *argp,int length,bool sign,int radix,int *writeLen){
     const char possibleChars[] = "0123456789abcdef";
     char buffer[32];
     unsigned long long number;
@@ -294,6 +301,7 @@ int* printf_number(int *argp,int length,bool sign,int radix){
 
     while(--pos >=0 ){
         putc(buffer[pos]);
+        *writeLen=*writeLen+1;
     }
 
     return argp;

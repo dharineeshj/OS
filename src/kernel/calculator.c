@@ -1,5 +1,5 @@
-#include "stdio.h"
-#include "stdint.h"
+#include "src/kernel/stdio/stdint.h"
+#include "src/kernel/stdio/stdio.h"
 
 int operation(int op1,int op2,char sy){
     int ans;

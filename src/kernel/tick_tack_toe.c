@@ -1,5 +1,5 @@
-#include "stdint.h"
-#include "stdio.h"
+#include "src/kernel/stdio/stdint.h"
+#include "src/kernel/stdio/stdio.h"
 
 // globals
 char *new_line="\n\r";

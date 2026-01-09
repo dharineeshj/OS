@@ -1,14 +1,16 @@
-#include "stdint.h"
-#include "stdio.h"
-#include "tick_tack_toe.h"
+#include "src/kernel/stdio/stdint.h"
+#include "src/kernel/stdio/stdio.h"
+#include "src/kernel/diskReset/asmDisk.h"
 
 
 char c;
-char s[100];
+char s[1];
 int a,b;
+   unint8_t c;
 void _cdecl cstart(){
-    printf("Enter the number:");
-    scanf("%x",&a);
-    printf("%d",a);
+    c=1;
+    x86_Disk_Reset(10,&c);
+    printf("%d",c);
+    
 }
 
