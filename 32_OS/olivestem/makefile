@@ -1,0 +1,20 @@
+all: clean kernel boot image
+
+clean:
+	rm -rf *.o
+
+kernel:
+	gcc -m32 -fno-stack-protector -fno-builtin -c kernel.c -o kernel.o
+	gcc -m32 -fno-stack-protector -fno-builtin -c vga.c -o vga.o
+	# gcc -m32 -fno-stack-protector -fno-builtin -c gdt.c -o gdt.o
+
+boot:
+	nasm -f elf32 boot.s -o boot.o
+	nasm -f elf32 gdt.s -o gdts.o
+
+image:
+	ld -m elf_i386 -T linker.ld -o Jas/boot/kernel.bin boot.o kernel.o vga.o  gdts.o
+	grub-mkrescue -o myos.iso Jas
+
+run:
+	qemu-system-i386 -cdrom myos.iso
