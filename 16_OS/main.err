@@ -1,0 +1,5 @@
+src/kernel/stdio/stdint.h(16): Warning! W138: No newline at end of file
+src/kernel/stdio/stdint.h(16): Warning! W138: No newline at end of file
+src/kernel/stdio/stdint.h(16): Warning! W138: No newline at end of file
+src/kernel/diskReset/asmDisk.h(5): Warning! W138: No newline at end of file
+src/kernel/application/application.h(4): Warning! W138: No newline at end of file

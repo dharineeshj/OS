@@ -1,0 +1,101 @@
+bits 16
+
+section _ENTRY CLASS=CODE
+
+extern _cstart
+
+global entry
+
+entry:
+    cli
+    mov ax,ds
+    mov ss,ax
+    mov sp,0
+    mov bp,sp
+    sti 
+
+    call _cstart
+
+    hlt
+    jmp halt
+
+halt:
+    jmp halt
+
+
+    bits 16
+
+
+jmp entry
+nop
+
+InstallGDT:
+    cli
+    pusha 
+    lgdt [toc]
+    sti
+    popa
+    ret
+
+entry:
+    cli
+    mov ax,ds
+    mov ss,ax
+    mov sp,0
+    mov bp,sp
+    sti 
+
+    pusha
+    mov ah,0eh
+    mov al,'c'
+    int 0x10
+    popa
+
+    call InstallGDT
+
+    cli 
+    mov eax,cr0
+    or eax,1
+    mov cr0,eax
+
+    jmp stage3
+
+bits 32
+stage3:
+    
+
+    hlt
+    jmp stop
+
+stop:
+    jmp stop
+
+other_data_section:
+    print_message db "Installation of gdt started",0ah,0dh,0
+
+gdt_data:
+; null descriptor
+    dd 0       
+    dd 0
+
+; gdt_code:
+    dw 0ffffh
+    dw 0
+    db 0
+    db 10011010b
+    db 11001111b
+    db 0
+
+; gdt_data
+    dw 0ffffh
+    dw 0
+    db 0
+    db 10010010b
+    db 11001111b
+    db 0
+
+end_of_gdt:
+toc:
+    dw end_of_gdt - gdt_data - 1 ; limit 
+    dd gdt_data
+
